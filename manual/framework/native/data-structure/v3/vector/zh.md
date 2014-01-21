@@ -1,5 +1,7 @@
 #cocos2d::Vector<T>
-v3.0 beta加入
+
+- v3.0 beta加入
+
 定义在"COCOS2DX_ROOT/cocos/base"的"CCVector.h"头文件中。
 
 ---
@@ -15,30 +17,41 @@ template<class T>class CC_DLL Vector;
 在cocos2d-x v3.0 beta之前，使用的是另外一个顺序访问容器`cocos2d::CCArray`，不过它将会被废弃。
 设计者们将`cocos2d::Vector<T>`设计为`cocos2d::CCArray`的替代品，所以建议优先考虑使用`cocos2d::Vector<T>`。
 `cocos2d::Vector<T>`的一些操作的时间复杂度如下：
-<ul>
-<li>随机访问，O(1)</li>
-<li>将元素插入到尾部或者删除尾部的元素，O(1)</li>
-<li>随机插入或删除, O(n)</li>
-<ul>
-模版参数
-T - 元素类型
-T的类型必须是继承自cocos2d::Object类型的指针。因为已经将cocos2d-x的内存管理模型集成到了cocos2d::Vector<T>中，所以类型参数不能是其他的类型包括基本类型。
-内存管理
-cocos2d::Vector<T>类只包含一个成员数据：
+
+- 随机访问，O(1)
+- 将元素插入到尾部或者删除尾部的元素，O(1)
+- 随机插入或删除, O(n)
+
+##模版参数
+
+**T** - 元素类型
+- T的类型必须是继承自`cocos2d::Object`类型的指针。因为已经将cocos2d-x的内存管理模型集成到了`cocos2d::Vector<T>`中，所以类型参数不能是其他的类型包括基本类型。
+
+##内存管理
+
+`cocos2d::Vector<T>`类只包含一个成员数据：
+
+```cpp
 std::vector<T> _data;
-_data的内存管理是由编译器自动处理的，如果声明了一个cocos2d::Vector<T>类型，就不必费心去释放内存。
-注意：使用现代的c++，本地存储对象比堆存储对象好。所以请不要用new操作来申请cocos2d::Vector<T>的堆对象，请使用栈对象。
-如果真心想动态分配堆cocos2d::Vector<T>，请将原始指针用智能指针来覆盖。
-警告：cocos2d::Vector<T>并不是cocos2d::Object的子类，所以不要像使用其他cocos2d类一样来用retain/release和引用计数内存管理。
-基本用例
-作者们用std::vector<T>的基本操作加上cocos2d-x的内存管理规则来覆盖该模版原先的普通操作。
+```
+
+`_data`的内存管理是由编译器自动处理的，如果声明了一个`cocos2d::Vector<T>`类型，就不必费心去释放内存。
+**注意**：使用现代的c++，本地存储对象比堆存储对象好。所以请不要用new操作来申请`cocos2d::Vector<T>`的堆对象，请使用栈对象。
+如果真心想动态分配堆`cocos2d::Vector<T>`，请将原始指针用智能指针来覆盖。
+**警告**：`cocos2d::Vector<T>`并不是`cocos2d::Object`的子类，所以不要像使用其他cocos2d类一样来用retain/release和引用计数内存管理。
+
+##基本用法
+
+作者们用`std::vector<T>`的基本操作加上cocos2d-x的内存管理规则来覆盖该模版原先的普通操作。
 所以pushBack()操作将会保留传递过来的参数，而popBack()则会释放掉容器中最后的一个元素。
 当你使用这些操作的时候，你需要特别注意这些受托管的对象，对于新手来说，这往往是陷阱。
-警告：cocos2d::Vector<T>并没有重载[]操作，所以不能直接用下标[i]来获取第i位元素。
-cocos2d::Vector<T>提供了不同类型的迭代器，所以我们可以受益于c++的标准函数库，我们可以使用大量标准泛型算法和for_each循环。
-除了std::vector<T>容器的操作之外，开发者们还加入许多标准算法诸如：std::find, std::reverse和std::swap，这些算法可以简化很多通用的操作。
+警告：`cocos2d::Vector<T>`并没有重载[]操作，所以不能直接用下标[i]来获取第i位元素。
+`cocos2d::Vector<T>`提供了不同类型的迭代器，所以我们可以受益于c++的标准函数库，我们可以使用大量标准泛型算法和for_each循环。
+除了std::vector<T>容器的操作之外，开发者们还加入许多标准算法诸如：`std::find`, `std::reverse`和`std::swap`，这些算法可以简化很多通用的操作。
 要了解更多的api用例，可以参考cocos2d-x 3.0beta的源码和压缩包里附带的例子。
 下面是一些简单的例子：
+
+```cpp
 //create Vector<Sprite*> with default size and add a sprite into it
 auto sp0 = Sprite::create();
 sp0->setTag(0);
@@ -89,19 +102,22 @@ if (!vec1.empty()) {  //whether the Vector is empty
     vec1.clear(); //remove all elements
     log("The size of pVec1 is %zd",vec1.size());
 }
+```
 
 输出：
+
+```cpp
 Cocos2d: sprite tag = 1
 Cocos2d: sprite tag = 0
 Cocos2d: pVec0 is equal to pVec2
 Cocos2d: pVec1->capacity()==2; pVec1->size()==2
 Cocos2d: The index of sp0 in pVec2 is 0
 Cocos2d: The size of pVec1 is 0
+```
 
-最佳做法
-<ul>
-考虑基于栈的cocos2d::Vector<T>优先用于基于堆的
-当将cocos2d::Vector<T>作为参数传递时，将它声明成常量引用：const cocos2d::Vector<T>&
-返回值是cocos2d::Vector<T>时，直接返回值，这种情况下编译器会优化成移动操作。
-不要尝试用任何没有继承cocos2d::Object的类型作为cocos2d::Vector<T>的数据类型。
-</ul>
+##最佳做法
+
+- 考虑基于栈的`cocos2d::Vector<T>`优先用于基于堆的
+- 当将`cocos2d::Vector<T>`作为参数传递时，将它声明成常量引用：`const cocos2d::Vector<T>&`
+- 返回值是`cocos2d::Vector<T>`时，直接返回值，这种情况下编译器会优化成移动操作。
+- 不要用任何没有继承cocos2d::Object的类型作为`cocos2d::Vector<T>`的数据类型。
